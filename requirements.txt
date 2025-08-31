@@ -1,0 +1,16 @@
+# Core
+databricks-cli==0.18.0
+pyspark==3.5.1
+delta-spark==3.2.0
+
+# Config & Validation
+pyyaml==6.0.2
+great-expectations==1.2.1
+
+# Testing
+pytest==8.2.2
+pytest-cov==5.0.0
+
+# Utilities
+requests==2.32.3
+pandas==2.2.2
