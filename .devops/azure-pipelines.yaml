@@ -1,0 +1,77 @@
+trigger:
+  branches:
+    include:
+      - dev
+      - test
+      - main
+
+variables:
+  - group: databricks-secrets   # Azure DevOps variable group containing DATABRICKS_HOST, DATABRICKS_TOKEN, ORCHESTRATOR_JOB_ID
+
+stages:
+  - stage: BuildAndDeploy
+    jobs:
+      - job: Deploy
+        pool:
+          vmImage: ubuntu-latest
+
+        steps:
+          # ----------------------------
+          # Checkout repo
+          # ----------------------------
+          - task: Checkout@1
+
+          # ----------------------------
+          # Setup Terraform
+          # ----------------------------
+          - task: TerraformInstaller@1
+            inputs:
+              terraformVersion: '1.5.7'
+
+          - script: |
+              cd .devops/terraform
+              terraform init
+            displayName: 'Terraform Init'
+
+          - script: |
+              cd .devops/terraform
+              terraform plan -out=tfplan
+            displayName: 'Terraform Plan'
+
+          - script: |
+              cd .devops/terraform
+              terraform apply -auto-approve tfplan
+            displayName: 'Terraform Apply'
+            condition: or(eq(variables['Build.SourceBranch'], 'refs/heads/test'), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+
+          # ----------------------------
+          # Setup Python + Databricks CLI
+          # ----------------------------
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '3.x'
+              addToPath: true
+
+          - script: |
+              pip install databricks-cli
+            displayName: 'Install Databricks CLI'
+
+          - script: |
+              databricks configure --token <<EOF
+              $(DATABRICKS_HOST)
+              $(DATABRICKS_TOKEN)
+              EOF
+            displayName: 'Configure Databricks CLI'
+
+          # ----------------------------
+          # Import Notebooks
+          # ----------------------------
+          - script: |
+              databricks workspace import_dir notebooks /Repos/databricks-data-migration-framework/notebooks --overwrite
+            displayName: 'Deploy Notebooks to Workspace'
+
+          # ----------------------------
+          # Deploy/Update Jobs
+          # ----------------------------
+          - script: |
+              databricks j
