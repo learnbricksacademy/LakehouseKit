@@ -1,0 +1,9 @@
+environment: dev
+databricks:
+  cluster: dev-cluster
+  workspace_url: https://adb-1234567890.0.azuredatabricks.net
+storage:
+  container: cfp-dev
+  account: cfpstorage
+alerts:
+  email: dev-alerts@cfp.com

@@ -1,0 +1,111 @@
+sources:
+  # --- SQL Source Example ---
+  - name: "policies"
+    type: "sql"
+    jdbc_hostname: "myazuresqlserver.database.windows.net"
+    jdbc_port: 1433
+    database: "ClaimsDB"
+    table: "dbo.Policies"
+    username_secret: "sql-user"
+    password_secret: "sql-password"
+    target:
+      schema: "claims"
+      table: "policies"
+      mode: "append"
+      partition_columns: ["ingest_date"]   # Optional: partitioning
+      auto_evolve: true                    # Auto schema evolution for new cols
+    streaming:
+      enabled: true                        # Enable streaming
+      trigger: "availableNow"              # Or "5 minutes"
+      checkpoint_path: "auto"              # Auto-generate checkpoint
+    validation:
+      row_count: true
+      checksum_columns: ["PolicyID"]
+      schema_drift: true
+
+  # --- API Source Example ---
+  - name: "customers_api"
+    type: "api"
+    api_url: "https://api.example.com/v1/customers"
+    auth_type: "bearer"                    # bearer | apikey | none
+    token_secret: "api-token"
+    pagination:
+      type: "page"
+      param: "page"
+      start: 1
+      max_pages: 3
+    target:
+      schema: "crm"
+      table: "customers"
+      mode: "overwrite"
+      auto_evolve: true
+    validation:
+      row_count: true
+      null_check_columns: ["customer_id", "email"]
+      schema_drift: true
+
+  # --- Storage (CSV) ---
+  - name: "sales_data_csv"
+    type: "storage"
+    storage_format: "csv"
+    storage_path: "raw/sales/*.csv"
+    options:
+      header: true
+      delimiter: ","
+      inferSchema: true
+    schema: ""                             # Explicit schema can be added
+    target:
+      schema: "staging"
+      table: "sales"
+      mode: "overwrite"
+      partition_columns: ["ingest_date"]
+      auto_evolve: true
+    validation:
+      row_count: true
+      schema_drift: true
+
+  # --- Storage (JSON) ---
+  - name: "events_json"
+    type: "storage"
+    storage_format: "json"
+    storage_path: "raw/events/*.json"
+    options:
+      multiline: true
+    schema: ""
+    target:
+      schema: "staging"
+      table: "events"
+      mode: "overwrite"
+      auto_evolve: true
+    validation:
+      row_count: true
+      schema_drift: true
+
+  # --- Storage (XML) ---
+  - name: "invoices_xml"
+    type: "storage"
+    storage_format: "xml"
+    storage_path: "raw/invoices/*.xml"
+    options:
+      rowTag: "invoice"
+    schema: "id INT, amount DOUBLE, customer STRING"  # Recommended for XML
+    target:
+      schema: "finance"
+      table: "invoices"
+      mode: "append"
+      auto_evolve: true
+    validation:
+      row_count: true
+      schema_drift: true
+
+  # --- Storage (Parquet) ---
+  - name: "products_parquet"
+    type: "storage"
+    storage_format: "parquet"
+    storage_path: "raw/products/*.parquet"
+    target:
+      schema: "master"
+      table: "products"
+      mode: "overwrite"
+    validation:
+      row_count: true

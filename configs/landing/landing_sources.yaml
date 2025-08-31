@@ -1,0 +1,23 @@
+sources:
+  - name: customers
+    type: csv
+    path: ./sample_data/customers.csv
+    delimiter: ","
+    header: true
+    target_schema: landing
+    target_table: customers
+
+  - name: transactions
+    type: json
+    path: ./sample_data/transactions.json
+    multiline: true
+    target_schema: landing
+    target_table: transactions
+
+  - name: products
+    type: csv
+    path: ./sample_data/products.csv
+    delimiter: ","
+    header: true
+    target_schema: landing
+    target_table: products

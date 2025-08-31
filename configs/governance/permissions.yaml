@@ -1,0 +1,28 @@
+permissions:
+  # --- Raw Zone (engineering team full control) ---
+  - object: "cfp.raw"
+    type: "SCHEMA"
+    grants:
+      - principal: "data_engineers"
+        privileges: ["ALL PRIVILEGES"]
+
+  # --- Harmonize Zone (engineers only) ---
+  - object: "cfp.harmonize"
+    type: "SCHEMA"
+    grants:
+      - principal: "data_engineers"
+        privileges: ["ALL PRIVILEGES"]
+
+  # --- Refined Zone (BI users read-only) ---
+  - object: "cfp.refined"
+    type: "SCHEMA"
+    grants:
+      - principal: "bi_users"
+        privileges: ["SELECT"]
+
+  # --- Executive Summary View ---
+  - object: "cfp.refined.claims_summary"
+    type: "VIEW"
+    grants:
+      - principal: "executives"
+        privileges: ["SELECT"]

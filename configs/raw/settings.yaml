@@ -1,0 +1,5 @@
+notifications:
+  type: "slack"          # options: slack | teams | email | none
+  webhook_secret: "alert-webhook"   # store webhook URL in Databricks secrets
+  channel: "#databricks-alerts"     # for Slack/Teams
+  email_recipients: ["admin@example.com"]  # for email (optional)

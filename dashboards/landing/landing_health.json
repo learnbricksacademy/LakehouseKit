@@ -1,0 +1,43 @@
+{
+  "name": "Landing Health Dashboard",
+  "description": "Monitors Landing → Raw ingestion (files processed, data volume, validations)",
+  "tags": ["landing", "raw", "ingestion", "databricks"],
+  "widgets": [
+    {
+      "title": "Files Processed per Source",
+      "visualization": "table",
+      "query": {
+        "sql": "SELECT source_name, format, SUM(file_count) AS total_files, ROUND(SUM(total_size_bytes)/1024/1024,2) AS size_MB, MAX(run_time) AS last_run FROM system.migration_logs WHERE source_type = 'landing' GROUP BY source_name, format ORDER BY last_run DESC"
+      },
+      "size": { "width": 12, "height": 6 },
+      "position": { "x": 0, "y": 0 }
+    },
+    {
+      "title": "Recent Landing Runs",
+      "visualization": "table",
+      "query": {
+        "sql": "SELECT source_name, target_table, format, file_count, ROUND(total_size_bytes/1024/1024,2) AS size_MB, run_time FROM system.migration_logs WHERE source_type = 'landing' ORDER BY run_time DESC LIMIT 50"
+      },
+      "size": { "width": 12, "height": 6 },
+      "position": { "x": 0, "y": 6 }
+    },
+    {
+      "title": "Landing Volume Trend (MB per Day)",
+      "visualization": "line",
+      "query": {
+        "sql": "SELECT date_trunc('day', run_time) AS day, ROUND(SUM(total_size_bytes)/1024/1024,2) AS volume_MB FROM system.migration_logs WHERE source_type = 'landing' GROUP BY day ORDER BY day"
+      },
+      "size": { "width": 12, "height": 6 },
+      "position": { "x": 0, "y": 12 }
+    },
+    {
+      "title": "Validation Issues",
+      "visualization": "table",
+      "query": {
+        "sql": "SELECT source_name, run_time, validation_results FROM system.migration_logs WHERE source_type = 'landing' AND validation_results IS NOT NULL ORDER BY run_time DESC"
+      },
+      "size": { "width": 12, "height": 6 },
+      "position": { "x": 0, "y": 18 }
+    }
+  ]
+}

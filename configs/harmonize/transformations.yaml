@@ -1,0 +1,36 @@
+transformations:
+  - name: "policies_curated"
+    source_table: "raw.policies"
+    target_table: "curated.policies"
+    mode: "merge"
+    merge_strategy: "insert_update"
+    streaming:
+      enabled: false
+      checkpoint_path: "auto"
+
+    incremental:                          # ✅ NEW
+      column: "last_updated_date"
+      checkpoint_table: "system.incremental_tracker"
+
+    rules:
+      select_columns:
+        - PolicyID
+        - CustomerID
+        - PolicyDate
+        - Status
+        - PremiumAmount
+      rename_columns:
+        PolicyID: policy_id
+        CustomerID: customer_id
+      drop_duplicates:
+        subset: ["policy_id", "customer_id"]
+
+    validations:                          # ✅ NEW
+      - column: "premium_amount"
+        rule: "premium_amount >= 0"
+        action: "fail"     # fail | warn | drop
+      - column: "customer_id"
+        rule: "customer_id IS NOT NULL"
+        action: "drop"
+
+    log_lineage: true                     # ✅ NEW
