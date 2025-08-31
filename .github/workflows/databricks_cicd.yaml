@@ -1,0 +1,37 @@
+name: Databricks CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - dev
+      - test
+      - main
+
+jobs:
+  databricks-cicd:
+    runs-on: ubuntu-latest
+
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+
+    steps:
+      # ----------------------------
+      # Checkout Repo
+      # ----------------------------
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      # ----------------------------
+      # Setup Terraform
+      # ----------------------------
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Terraform Init
+        working-directory: .devops/terraform
+        run: terraform init
+
+      - name: Terraform Plan
+        working-directory: .devops/terraform
+        r
