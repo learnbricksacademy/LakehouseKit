@@ -1,0 +1,22 @@
+expectations:
+  - name: "policies_standardized_dq"
+    table: "harmonize.policies_standardized"
+    rules:
+      - column: "policy_id"
+        not_null: true
+      - column: "customer_id"
+        not_null: true
+      - column: "premium_amount"
+        min: 0
+      - column: "policy_date"
+        type: "date"
+
+  - name: "customer360_dq"
+    table: "refined.customer360"
+    rules:
+      - column: "total_policies"
+        min: 0
+      - column: "total_premium"
+        min: 0
+      - column: "customer_id"
+        not_null: true
