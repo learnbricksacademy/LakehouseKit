@@ -1,4 +1,4 @@
-🔹 How to Use
+# How to Use
 Terraform
 
 Add provider config (provider "databricks" {}) in your Terraform root.
