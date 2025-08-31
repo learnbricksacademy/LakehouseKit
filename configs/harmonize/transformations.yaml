@@ -2,11 +2,16 @@ transformations:
   - name: "policies_curated"
     source_table: "raw.policies"
     target_table: "curated.policies"
-    mode: "merge"                           # overwrite | append | merge
-    merge_strategy: "insert_update"         # insert_update | insert_only | update_only | full_refresh
+    mode: "merge"
+    merge_strategy: "insert_update"
     streaming:
       enabled: false
       checkpoint_path: "auto"
+
+    incremental:                          # ✅ NEW
+      column: "last_updated_date"
+      checkpoint_table: "system.incremental_tracker"
+
     rules:
       select_columns:
         - PolicyID
@@ -17,22 +22,15 @@ transformations:
       rename_columns:
         PolicyID: policy_id
         CustomerID: customer_id
-      drop_columns:
-        - temp_flag
-      derive_columns:
-        policy_year: "year(PolicyDate)"
-      filter: "Status IS NOT NULL"
-      cast_columns:
-        PremiumAmount: "DOUBLE"
-      joins:
-        - with: "crm.customers"
-          alias: "c"
-          on: "main.CustomerID = c.customer_id"
-          how: "left"
-          select_columns:
-            - c.customer_name
       drop_duplicates:
         subset: ["policy_id", "customer_id"]
-      standardize:
-        normalize_column_names: true
-        trim_strings: true
+
+    validations:                          # ✅ NEW
+      - column: "premium_amount"
+        rule: "premium_amount >= 0"
+        action: "fail"     # fail | warn | drop
+      - column: "customer_id"
+        rule: "customer_id IS NOT NULL"
+        action: "drop"
+
+    log_lineage: true                     # ✅ NEW
