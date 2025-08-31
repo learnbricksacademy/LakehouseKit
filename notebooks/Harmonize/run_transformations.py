@@ -1,8 +1,8 @@
 from src.utils import load_config
-from src.transformations.base_engine import TransformationEngine
+from src.transformations.harmonize.base_engine import TransformationEngine
 
 # ---------------- Params ----------------
-dbutils.widgets.text("config_file", "/Workspace/Repos/databricks-data-migration-framework/configs/transformations.yaml")
+dbutils.widgets.text("config_file", "/Workspace/Repos/databricks-data-migration-framework/configs/harmonize/transformations.yaml")
 dbutils.widgets.text("transformation_name", "")
 dbutils.widgets.text("storage_account", "")
 dbutils.widgets.text("container", "")
