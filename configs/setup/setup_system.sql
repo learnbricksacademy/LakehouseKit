@@ -63,3 +63,19 @@ CREATE TABLE IF NOT EXISTS system.transformation_lineage (
   run_time TIMESTAMP DEFAULT current_timestamp()
 )
 USING DELTA;
+
+-- ==========================================================
+-- ORCHESTRATOR / PIPELINE SYSTEM TABLES
+-- ==========================================================
+
+-- Logs each orchestrator run (for audit + monitoring)
+CREATE TABLE IF NOT EXISTS system.pipeline_runs (
+  run_id STRING,                -- unique ID per orchestrator run
+  stage STRING,                 -- all | landing | raw | harmonize | refined | raw_harmonize | harmonize_refined
+  status STRING,                -- success | failed
+  start_time TIMESTAMP,
+  end_time TIMESTAMP,
+  details STRING                -- optional JSON (configs, error messages, counts, etc.)
+)
+USING DELTA;
+
