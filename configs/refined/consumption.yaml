@@ -1,0 +1,27 @@
+consumption:
+  - name: "policy_kpis"
+    type: "table"
+    target_table: "refined.policy_kpis"
+    sql: |
+      SELECT 
+        year(policy_date) AS policy_year,
+        COUNT(*) AS total_policies,
+        AVG(premium_amount) AS avg_premium,
+        SUM(CASE WHEN status = 'Active' THEN 1 ELSE 0 END) AS active_policies
+      FROM harmonize.policies_standardized
+      GROUP BY year(policy_date);
+
+  - name: "customer360_view"
+    type: "view"
+    target_table: "refined.customer360"
+    sql: |
+      SELECT 
+        c.customer_id,
+        c.customer_name,
+        c.customer_segment,
+        COUNT(p.policy_id) AS total_policies,
+        SUM(p.premium_amount) AS total_premium
+      FROM harmonize.customers_cleaned c
+      LEFT JOIN harmonize.policies_standardized p
+        ON c.customer_id = p.customer_id
+      GROUP BY c.customer_id, c.customer_name, c.customer_segment;
