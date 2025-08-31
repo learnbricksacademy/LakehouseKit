@@ -1,0 +1,9 @@
+environment: prod
+databricks:
+  cluster: prod-cluster
+  workspace_url: https://adb-1234567890.2.azuredatabricks.net
+storage:
+  container: cfp-prod
+  account: cfpstorage
+alerts:
+  email: prod-alerts@cfp.com
