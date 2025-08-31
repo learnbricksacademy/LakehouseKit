@@ -1,0 +1,14 @@
+Example:
+```yaml
+permissions:
+  - object: "cfp.raw"
+    type: "SCHEMA"
+    grants:
+      - principal: "data_engineers"
+        privileges: ["ALL PRIVILEGES"]
+
+  - object: "cfp.refined.claims_summary"
+    type: "VIEW"
+    grants:
+      - principal: "executives"
+        privileges: ["SELECT"]
