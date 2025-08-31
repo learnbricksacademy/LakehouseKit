@@ -1,0 +1,24 @@
+views:
+  - name: claims_summary
+    schema: cfp.refined
+    sql: |
+      SELECT
+          policy_id,
+          COUNT(*) AS total_claims,
+          SUM(claim_amount) AS total_amount,
+          AVG(claim_amount) AS avg_amount
+      FROM cfp.harmonize.claims
+      GROUP BY policy_id;
+
+  - name: policy_overview
+    schema: cfp.refined
+    sql: |
+      SELECT
+          p.policy_id,
+          p.policy_holder,
+          COUNT(c.claim_id) AS num_claims,
+          MAX(c.claim_date) AS last_claim_date
+      FROM cfp.harmonize.policies p
+      LEFT JOIN cfp.harmonize.claims c
+          ON p.policy_id = c.policy_id
+      GROUP BY p.policy_id, p.policy_holder;
