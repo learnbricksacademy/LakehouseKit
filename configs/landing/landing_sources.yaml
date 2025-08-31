@@ -1,0 +1,18 @@
+landing_sources:
+  - name: "policies_file"
+    path: "abfss://landing@storageacct.dfs.core.windows.net/policies/"
+    format: "csv"                # csv | json | parquet | avro | xml
+    raw_table: "raw.policies"
+    options:
+      header: true
+      inferSchema: true
+    checkpoint_path: "auto"
+    mode: "append"
+
+  - name: "customers_file"
+    path: "abfss://landing@storageacct.dfs.core.windows.net/customers/"
+    format: "json"
+    raw_table: "raw.customers"
+    options: {}
+    checkpoint_path: "auto"
+    mode: "append"
