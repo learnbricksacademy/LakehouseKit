@@ -1,0 +1,34 @@
+{
+  "name": "Transformation Monitoring Dashboard",
+  "description": "Tracks transformation runs, data quality validation, and lineage.",
+  "tags": ["transformation", "validation", "lineage", "databricks"],
+  "widgets": [
+    {
+      "title": "Recent Transformation Runs",
+      "visualization": "table",
+      "query": {
+        "sql": "SELECT transformation_name, source_table, target_table, run_time FROM system.transformation_lineage ORDER BY run_time DESC LIMIT 50"
+      },
+      "size": { "width": 12, "height": 6 },
+      "position": { "x": 0, "y": 0 }
+    },
+    {
+      "title": "Validation Results (Last 24h)",
+      "visualization": "bar",
+      "query": {
+        "sql": "SELECT transformation_name, rule, SUM(invalid_count) AS invalid_rows FROM system.transformation_validations WHERE run_time >= current_timestamp() - INTERVAL 1 DAY GROUP BY transformation_name, rule ORDER BY invalid_rows DESC"
+      },
+      "size": { "width": 12, "height": 6 },
+      "position": { "x": 0, "y": 6 }
+    },
+    {
+      "title": "Lineage View (Source → Target)",
+      "visualization": "table",
+      "query": {
+        "sql": "SELECT transformation_name, source_table, target_table, run_time FROM system.transformation_lineage ORDER BY run_time DESC"
+      },
+      "size": { "width": 12, "height": 6 },
+      "position": { "x": 0, "y": 12 }
+    }
+  ]
+}
