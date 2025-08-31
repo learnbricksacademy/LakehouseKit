@@ -1,0 +1,6 @@
+SELECT raw_table, COUNT(*) AS file_count, MAX(_ingest_time) AS last_ingest
+FROM raw.policies
+GROUP BY raw_table
+
+
+SELECT format, COUNT(*) FROM system.migration_logs WHERE source_type = 'landing' GROUP BY format
