@@ -1,0 +1,25 @@
+{
+  "name": "Refined Health Dashboard",
+  "description": "Monitors Refined (Curated) layer jobs",
+  "tags": ["refined", "curated", "databricks"],
+  "widgets": [
+    {
+      "title": "Refined Tables Row Count",
+      "visualization": "bar",
+      "query": {
+        "sql": "SELECT table_name, row_count FROM system.information_schema.table_row_counts WHERE table_schema = 'refined'"
+      },
+      "size": { "width": 12, "height": 6 },
+      "position": { "x": 0, "y": 0 }
+    },
+    {
+      "title": "Recent Refined Jobs",
+      "visualization": "table",
+      "query": {
+        "sql": "SELECT name, target_table, type FROM configs.refined.consumption"
+      },
+      "size": { "width": 12, "height": 6 },
+      "position": { "x": 0, "y": 6 }
+    }
+  ]
+}
