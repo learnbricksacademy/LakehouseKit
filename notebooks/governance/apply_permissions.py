@@ -1,35 +1,37 @@
+# Databricks notebook / Python script
+# Apply governance permissions based on configs/governance/permissions.yaml
 
----
+import yaml
+from pyspark.sql import SparkSession
+import os
 
-## 3. `docs/governance/setup_governance_notebook.md`
-```markdown
-# Setup Governance Notebook
+spark = SparkSession.builder.getOrCreate()
 
-## Purpose
-Automates the application of:
-- Unity Catalog setup (catalogs, schemas)
-- Permissions (GRANTs)
-- View creation from config
+# --- Load permissions.yaml ---
+# Update this path if your repo is mounted differently in Databricks
+CONFIG_PATH = "/Workspace/Repos/cfp/configs/governance/permissions.yaml"
 
-## Steps to Run
-1. Open **Databricks Workspace**.  
-2. Navigate to `notebooks/governance/apply_permissions.py`.  
-3. Attach to the cluster.  
-4. Run the notebook:
-   - It reads `configs/governance/permissions.yaml`.  
-   - Applies `GRANT` statements for groups (`data_engineers`, `bi_users`, `executives`).  
-   - Logs all applied permissions.
+with open(CONFIG_PATH, "r") as f:
+    config = yaml.safe_load(f)
 
-## Config Structure
-```yaml
-permissions:
-  - object: "cfp.refined.claims_summary"
-    type: "VIEW"
-    grants:
-      - principal: "executives"
-        privileges: ["SELECT"]
-  - object: "cfp.raw"
-    type: "SCHEMA"
-    grants:
-      - principal: "data_engineers"
-        privileges: ["ALL PRIVILEGES"]
+permissions = config.get("permissions", [])
+
+# --- Apply grants ---
+for perm in permissions:
+    obj = perm["object"]        # e.g. cfp.refined.claims_summary
+    obj_type = perm["type"]     # SCHEMA, VIEW, TABLE, CATALOG
+    grants = perm.get("grants", [])
+
+    for grant in grants:
+        principal = grant["principal"]        # e.g. bi_users
+        privileges = ", ".join(grant["privileges"])  # e.g. SELECT, ALL PRIVILEGES
+
+        sql_stmt = f"GRANT {privileges} ON {obj_type} {obj} TO `{principal}`"
+
+        print(f"Applying: {sql_stmt}")
+        try:
+            spark.sql(sql_stmt)
+        except Exception as e:
+            print(f"⚠️ Failed to apply {sql_stmt}: {e}")
+
+print("✅ Governance application complete.")
