@@ -1,0 +1,22 @@
+{
+  "alerts": [
+    {
+      "name": "Pipeline Failed Runs Alert",
+      "description": "Triggers when any pipeline run fails in the last hour",
+      "query": {
+        "sql": "SELECT run_id, stage, status, start_time, end_time, details FROM system.pipeline_runs WHERE status = 'failed' AND start_time >= NOW() - INTERVAL 1 HOUR"
+      },
+      "condition": "rows > 0",
+      "notification_channels": ["email:team@datacompany.com", "slack:#data-alerts"]
+    },
+    {
+      "name": "Pipeline Stale Stage Alert",
+      "description": "Triggers when a pipeline stage has not run successfully in the last 6 hours",
+      "query": {
+        "sql": "SELECT stage, MAX(end_time) AS last_success_time FROM system.pipeline_runs WHERE status = 'success' GROUP BY stage HAVING MAX(end_time) < NOW() - INTERVAL 6 HOURS"
+      },
+      "condition": "rows > 0",
+      "notification_channels": ["email:team@datacompany.com", "slack:#data-alerts"]
+    }
+  ]
+}
