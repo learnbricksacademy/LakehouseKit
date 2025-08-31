@@ -17,6 +17,15 @@
       },
       "condition": "rows > 0",
       "notification_channels": ["email:team@datacompany.com", "slack:#data-alerts"]
+    },
+    {
+      "name": "Data Quality Failure Alert",
+      "description": "Triggers when a data quality rule fails in the last run",
+      "query": {
+        "sql": "SELECT transformation_name, rule, invalid_count, run_time FROM system.transformation_validations WHERE run_time >= NOW() - INTERVAL 1 HOUR"
+      },
+      "condition": "rows > 0",
+      "notification_channels": ["email:dq@datacompany.com", "slack:#data-quality-alerts"]
     }
   ]
 }
