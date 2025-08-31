@@ -3,7 +3,7 @@ from src.utils import load_config
 
 # ---------------- Params ----------------
 dbutils.widgets.text("mode", "all")
-dbutils.widgets.text("config_file", "/Workspace/Repos/databricks-data-migration-framework/configs/multi_sources.yaml")
+dbutils.widgets.text("config_file", "/Workspace/Repos/databricks-data-migration-framework/configs/settings.yaml")
 
 mode = dbutils.widgets.get("mode")
 config = load_config(dbutils.widgets.get("config_file"))
