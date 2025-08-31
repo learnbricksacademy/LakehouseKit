@@ -8,6 +8,8 @@ from src.raw.ingest_api import ingest_api_source
 from src.raw.ingest_storage import ingest_storage_source
 from src.harmonize.base_engine import TransformationEngine
 from src.refined.consumption import apply_consumption
+from src.harmonize.dq_engine import run_dq_checks
+import json
 
 # ---------------- Params ----------------
 dbutils.widgets.text("landing_config", "/Workspace/Repos/databricks-data-migration-framework/configs/landing/landing_sources.yaml")
@@ -103,3 +105,27 @@ except Exception as e:
     )
     print(f"❌ Pipeline stage '{pipeline_stage}' failed (Run ID: {run_id})")
     raise
+
+# ---------------- Run Data Quality Checks ----------------
+if pipeline_stage in ("all", "harmonize", "raw_harmonize", "harmonize_refined"):
+    dq_config_file = "/Workspace/Repos/databricks-data-migration-framework/configs/harmonize/dq_expectations.yaml"
+    dq_config = load_config(dq_config_file)["expectations"]
+
+    for exp in dq_config:
+        print(f"🔍 Running DQ checks: {exp['name']} on {exp['table']}")
+        results = run_dq_checks(spark, exp)
+
+        failed = [r for r in results if not r["success"]]
+        if failed:
+            print(f"❌ Data Quality FAILED for {exp['table']}")
+            print(json.dumps(failed, indent=2))
+
+            # log failures to system.transformation_validations
+            log_data = [(exp["name"], json.dumps(failed))]
+            df = spark.createDataFrame(log_data, ["transformation_name", "rule"])
+            df.write.format("delta").mode("append").saveAsTable("system.transformation_validations")
+
+            # Fail-fast
+            raise Exception(f"DQ failed for {exp['table']}")
+        else:
+            print(f"✅ DQ PASSED for {exp['table']}")
