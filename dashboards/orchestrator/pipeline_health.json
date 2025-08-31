@@ -1,0 +1,52 @@
+{
+  "name": "Pipeline Health Dashboard",
+  "description": "Monitors orchestrator pipeline runs (Landing → Raw → Harmonize → Refined)",
+  "tags": ["pipeline", "orchestrator", "databricks"],
+  "widgets": [
+    {
+      "title": "Recent Pipeline Runs",
+      "visualization": "table",
+      "query": {
+        "sql": "SELECT run_id, stage, status, start_time, end_time, details FROM system.pipeline_runs ORDER BY start_time DESC LIMIT 50"
+      },
+      "size": { "width": 12, "height": 6 },
+      "position": { "x": 0, "y": 0 }
+    },
+    {
+      "title": "Run Status Breakdown",
+      "visualization": "pie",
+      "query": {
+        "sql": "SELECT status, COUNT(*) AS run_count FROM system.pipeline_runs GROUP BY status"
+      },
+      "size": { "width": 6, "height": 6 },
+      "position": { "x": 0, "y": 6 }
+    },
+    {
+      "title": "Runs per Stage",
+      "visualization": "bar",
+      "query": {
+        "sql": "SELECT stage, COUNT(*) AS run_count FROM system.pipeline_runs GROUP BY stage ORDER BY run_count DESC"
+      },
+      "size": { "width": 6, "height": 6 },
+      "position": { "x": 6, "y": 6 }
+    },
+    {
+      "title": "Average Runtime per Stage",
+      "visualization": "bar",
+      "query": {
+        "sql": "SELECT stage, ROUND(AVG(unix_timestamp(end_time) - unix_timestamp(start_time)),2) AS avg_runtime_sec FROM system.pipeline_runs WHERE status = 'success' GROUP BY stage ORDER BY avg_runtime_sec DESC"
+      },
+      "size": { "width": 12, "height": 6 },
+      "position": { "x": 0, "y": 12 }
+    },
+    {
+      "title": "Last Successful Run per Stage",
+      "visualization": "table",
+      "query": {
+        "sql": "SELECT stage, MAX(end_time) AS last_success_time FROM system.pipeline_runs WHERE status = 'success' GROUP BY stage"
+      },
+      "size": { "width": 12, "height": 6 },
+      "position": { "x": 0, "y": 18 }
+    }
+  ]
+}
