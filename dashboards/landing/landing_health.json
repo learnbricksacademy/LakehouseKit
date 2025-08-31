@@ -17,3 +17,10 @@ FROM system.migration_logs
 WHERE source_type = 'landing'
 GROUP BY day
 ORDER BY day
+
+
+SELECT source_name, run_time, validation_results
+FROM system.migration_logs
+WHERE source_type = 'landing'
+AND validation_results IS NOT NULL
+ORDER BY run_time DESC
