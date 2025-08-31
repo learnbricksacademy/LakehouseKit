@@ -1,0 +1,20 @@
+{
+  "name": "Pipeline Orchestrator",
+  "tasks": [
+    {
+      "task_key": "orchestrator",
+      "notebook_task": {
+        "notebook_path": "/Repos/databricks-data-migration-framework/notebooks/orchestrator/run_pipeline.py",
+        "base_parameters": {
+          "pipeline_stage": "all"
+        }
+      },
+      "existing_cluster_id": "CLUSTER-ID-HERE"
+    }
+  ],
+  "email_notifications": {
+    "on_failure": ["team@datacompany.com"],
+    "on_success": []
+  },
+  "max_concurrent_runs": 1
+}
