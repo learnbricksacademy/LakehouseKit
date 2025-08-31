@@ -12,11 +12,15 @@ CREATE SCHEMA IF NOT EXISTS system;
 -- ==========================================================
 
 -- Ingestion logs (run-level results)
+-- Extend migration_logs with landing ingestion metadata
 CREATE TABLE IF NOT EXISTS system.migration_logs (
   source_name STRING,
-  source_type STRING,
+  source_type STRING,          -- sql | api | storage | landing
   target_table STRING,
-  validation_results STRING,
+  format STRING,               -- csv, json, parquet, etc.
+  file_count BIGINT,           -- number of files processed
+  total_size_bytes BIGINT,     -- size of files ingested
+  validation_results STRING,   -- optional JSON
   run_time TIMESTAMP DEFAULT current_timestamp()
 )
 USING DELTA;
