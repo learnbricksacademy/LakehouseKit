@@ -1,6 +1,19 @@
-SELECT raw_table, COUNT(*) AS file_count, MAX(_ingest_time) AS last_ingest
-FROM raw.policies
-GROUP BY raw_table
+SELECT source_name, format, SUM(file_count) AS total_files, SUM(total_size_bytes)/1024/1024 AS size_MB, MAX(run_time) AS last_run
+FROM system.migration_logs
+WHERE source_type = 'landing'
+GROUP BY source_name, format
+ORDER BY last_run DESC
 
 
-SELECT format, COUNT(*) FROM system.migration_logs WHERE source_type = 'landing' GROUP BY format
+SELECT source_name, target_table, format, file_count, total_size_bytes, run_time
+FROM system.migration_logs
+WHERE source_type = 'landing'
+ORDER BY run_time DESC
+LIMIT 50
+
+
+SELECT date_trunc('day', run_time) AS day, SUM(total_size_bytes)/1024/1024 AS volume_MB
+FROM system.migration_logs
+WHERE source_type = 'landing'
+GROUP BY day
+ORDER BY day
