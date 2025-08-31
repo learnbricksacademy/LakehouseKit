@@ -1,20 +1,23 @@
-landing_sources:
-  - name: "policies_file"
-    path: "abfss://landing@storageacct.dfs.core.windows.net/policies/"
-    format: "csv"
-    raw_table: "raw.policies"
-    options:
-      header: true
-      inferSchema: true
-    checkpoint_path: "auto"
-    mode: "append"
+sources:
+  - name: customers
+    type: csv
+    path: ./sample_data/customers.csv
+    delimiter: ","
+    header: true
+    target_schema: landing
+    target_table: customers
 
-    validations:
-      file_name_pattern: ".*policies.*\\.csv"   # regex match
-      required_columns:
-        - PolicyID
-        - CustID
-        - DateIssued
-        - PremAmt
-      max_file_size_mb: 100
-      max_files_per_batch: 20
+  - name: transactions
+    type: json
+    path: ./sample_data/transactions.json
+    multiline: true
+    target_schema: landing
+    target_table: transactions
+
+  - name: products
+    type: csv
+    path: ./sample_data/products.csv
+    delimiter: ","
+    header: true
+    target_schema: landing
+    target_table: products
