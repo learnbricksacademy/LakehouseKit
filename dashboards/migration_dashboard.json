@@ -1,0 +1,43 @@
+{
+  "name": "Data Migration Framework Dashboard",
+  "description": "Monitoring dashboard for migrations, validations, and schema drift.",
+  "tags": ["migration", "databricks", "validation", "schema-drift"],
+  "widgets": [
+    {
+      "title": "Migration Overview (Recent Runs)",
+      "visualization": "table",
+      "query": {
+        "sql": "SELECT source_name, source_type, target_table, run_time, validation_results FROM system.migration_logs ORDER BY run_time DESC LIMIT 50"
+      },
+      "size": { "width": 12, "height": 6 },
+      "position": { "x": 0, "y": 0 }
+    },
+    {
+      "title": "Validation Row Counts",
+      "visualization": "bar",
+      "query": {
+        "sql": "SELECT source_name, run_time, get_json_object(validation_results, '$.row_count') AS row_count FROM system.migration_logs ORDER BY run_time DESC"
+      },
+      "size": { "width": 12, "height": 6 },
+      "position": { "x": 0, "y": 6 }
+    },
+    {
+      "title": "Schema Drift Detection",
+      "visualization": "table",
+      "query": {
+        "sql": "SELECT source_name, run_time, get_json_object(validation_results, '$.schema_drift') AS schema_drift FROM system.migration_logs WHERE get_json_object(validation_results, '$.schema_drift') != 'first_run' ORDER BY run_time DESC"
+      },
+      "size": { "width": 12, "height": 6 },
+      "position": { "x": 0, "y": 12 }
+    },
+    {
+      "title": "Schema Drift History",
+      "visualization": "table",
+      "query": {
+        "sql": "SELECT source_name, ingest_time, schema_json FROM system.schema_registry ORDER BY ingest_time DESC"
+      },
+      "size": { "width": 12, "height": 6 },
+      "position": { "x": 0, "y": 18 }
+    }
+  ]
+}
