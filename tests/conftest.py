@@ -3,10 +3,6 @@ from pyspark.sql import SparkSession
 
 @pytest.fixture(scope="session")
 def spark():
-    """
-    Create a Spark session for all tests (shared across test files).
-    Scope=session → only starts once per test run.
-    """
     spark = (
         SparkSession.builder
         .master("local[2]")
@@ -14,11 +10,15 @@ def spark():
         .getOrCreate()
     )
 
-    # Ensure Delta support is enabled for local tests
     spark.conf.set("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
     spark.conf.set("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
 
-    yield spark
+    # Load test data from SQL file
+    with open("tests/test_data_setup.sql", "r") as f:
+        sql_commands = f.read().split(";")
+        for cmd in sql_commands:
+            if cmd.strip():
+                spark.sql(cmd)
 
-    # Teardown after tests
+    yield spark
     spark.stop()
